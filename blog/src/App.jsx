@@ -6,6 +6,7 @@ import { login, logout } from "./store/authSlice";
 import { LogoutBtn } from "./components/Navbar/LogoutBtn";
 import { Navbar } from "./components/Navbar/Navbar";
 import { Outlet } from "react-router-dom";
+import { Footer } from "./components/Footer";
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
    <main>
         <Outlet />
         </main>
+        <Footer/>
     </div>}</>;
 }
 

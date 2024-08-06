@@ -28,7 +28,9 @@ export const Login = () => {
         if (userData) {
           dispatch(authLogin({ userData }));
           setLoading(false);
-          navigate("/");
+          console.log("Navigating to /all-posts");
+
+           navigate("/all-posts");
         }
       }
     } catch (error) {
@@ -47,6 +49,7 @@ export const Login = () => {
             sx={{
               display: "flex",
               justifyContent: "center",
+    
             }}
           >
             <Box

@@ -10,6 +10,9 @@ export const theme = createTheme({
     },
     common:{
         black:'#001920',
+    },
+    error:{
+      main:'#d32f2f'
     }
   },
   mixins: {

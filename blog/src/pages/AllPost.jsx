@@ -3,7 +3,7 @@ import dbService from "../services/DbService";
 import { getAllPosts } from "../store/postSlice";
 import { PostCard, Wrapper } from "../components";
 import { useDispatch, useSelector } from "react-redux";
-import { Box } from "@mui/material";
+import { Box,Grid } from "@mui/material";
 import { Text } from "../components/Text";
 export const AllPost = () => {
   const [posts, setPosts] = useState([]);
@@ -42,20 +42,15 @@ export const AllPost = () => {
           gutterBottom
         />
 
-        <Box
-          sx={{
-            display: "flex",
-            alignItems: "start",
-            justifyContent: "start",
-            gap: 10,
-          }}
-        >
+        <Grid container spacing={4}>
           {fetchedPosts.map((post) => (
-            <Box key={post.$id} sx={{ height: 500 }}>
-              <PostCard {...post} />
-            </Box>
+            <Grid item xs={12} sm={6} md={4} key={post.$id}>
+              
+                <PostCard {...post} />
+           
+            </Grid>
           ))}
-        </Box>
+        </Grid>
       </Wrapper>
     </Box>
   );

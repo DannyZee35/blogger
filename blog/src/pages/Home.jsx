@@ -1,7 +1,8 @@
-import { Box } from "@mui/material";
+import { Box,Grid } from "@mui/material";
 import React from "react";
 import { useSelector } from "react-redux";
 import { PostCard, Wrapper } from "../components";
+import { Text } from "../components/Text";
 
 export const Home = () => {
   const posts = useSelector((state) => state.posts.posts);
@@ -23,17 +24,31 @@ export const Home = () => {
   return (
     <Box>
       <Wrapper>
-        <Box>
+      <Text
+          text={"Welcome to Our Blog!"}
+          variant="h4"
+          sx={{ fontWeight: "bold", mt: 10 }}
+          gutterBottom
+        />
+        <Text
+          text={
+            "Explore our collection of insightful posts, where we share a variety of topics that cater to your interests."
+          }
+          variant="h5"
+          sx={{ mb: 10 }}
+          gutterBottom
+        />
+
+      <Grid container spacing={4}>
           {posts.map((post) => (
-            <Box component="div" key={post.$id}>
-              <PostCard
-                title={post.title}
-                featuredImage={post.featuredImage}
-                $id={post.$id}
-              />
-            </Box>
+            <Grid item xs={12} sm={6} md={4} key={post.$id}>
+              
+                <PostCard {...post} />
+           
+            </Grid>
           ))}
-        </Box>
+        </Grid>
+       
       </Wrapper>
     </Box>
   );

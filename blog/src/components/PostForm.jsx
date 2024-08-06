@@ -3,13 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import bucketService from "../services/bucketService";
 import dbService from "../services/DbService";
-import { addPost } from "../store/postSlice";
-import { Box } from "@mui/material";
+import { addPost, setLoading } from "../store/postSlice";
+import { Box, CircularProgress } from "@mui/material";
 import { ButtonComponent, Input, RTE, Select } from "./index";
 import { useCallback, useEffect } from "react";
 import { theme } from "./Theme/Theme";
+import { Text } from "./Text";
 
 export const PostForm = ({ post }) => {
+  const loading = useSelector((state) => state.posts.loading);
+  console.log("state loading is ", loading);
+
   const { register, handleSubmit, setValue, getValues, control, watch } =
     useForm({
       defaultValues: {
@@ -25,53 +29,60 @@ export const PostForm = ({ post }) => {
   const dispatch = useDispatch();
 
   const submit = async (data) => {
-    if (post) {
-      
-      const file = await data.featuredImage[0]
-        ? await bucketService.uploadFile(data.featuredImage[0])
-        : null;
+    try {
+      dispatch(setLoading(true));
 
-        console.log("previous fike",file);
-        
-      if (file) {
-         bucketService.deleteFile(post.featuredImage);
- 
+      if (post) {
+        const file = (await data.featuredImage[0])
+          ? await bucketService.uploadFile(data.featuredImage[0])
+          : null;
 
-        // dispatch(deleteImage(post.featuredImage));
-      }
+        console.log("previous fike", file);
 
-      const dbPost = await dbService.updatePost(post.$id, {
-        ...data,
-        featuredImage: file ? file.$id : undefined,
-        
-      });
-      console.log("file from edit",file);
+        if (file) {
+          bucketService.deleteFile(post.featuredImage);
 
-      if (dbPost) {
-        // if (file) {
-        //   dispatch(addImage(file));
-        // }
-        console.log("db post",dbPost);
-        
-        dispatch(addPost(dbPost));
-        navigate(`/post/${dbPost.$id}`);
-      }
-    } else {
-      const file = await bucketService.uploadFile(data.featuredImage[0]);
+          // dispatch(deleteImage(post.featuredImage));
+        }
 
-      if (file) {
-        const fileID = file.$id;
-        data.featuredImage = fileID;
-        const dbPost = await dbService.createPost({
+        const dbPost = await dbService.updatePost(post.$id, {
           ...data,
-          userID: userData.$id,
+          featuredImage: file ? file.$id : undefined,
         });
+        console.log("file from edit", file);
+
         if (dbPost) {
+          // if (file) {
+          //   dispatch(addImage(file));
+          // }
+          console.log("db post", dbPost);
+
           dispatch(addPost(dbPost));
-          // dispatch(addImage(file));
           navigate(`/post/${dbPost.$id}`);
         }
+      } else {
+         const file = await bucketService.uploadFile(data.featuredImage[0]);
+
+        if (file) {
+          const fileID = file.$id;
+          data.featuredImage = fileID;
+          const dbPost = await dbService.createPost({
+            ...data,
+            userID: userData.$id,
+          });
+          if (dbPost) {
+ 
+            dispatch(addPost(dbPost));
+            // dispatch(addImage(file));
+
+            navigate(`/post/${dbPost.$id}`);
+          }
+        }
       }
+    } catch (error) {
+      console.error("Error occurred while submitting the post:", error);
+    } finally {
+      dispatch(setLoading(false));  
     }
   };
   const slugTransform = useCallback((value) => {
@@ -112,12 +123,24 @@ export const PostForm = ({ post }) => {
               justifyContent: "center",
               gap: 3,
 
-              p: 10,
+              p: {xs:5,sm:5,lg:10},
               border: `1px solid ${theme.palette.primary.main}`,
               mt: 10,
               borderRadius: 5,
             }}
           >
+            <Box>
+              <Text
+                text="Add a New Post"
+                variant="h4"
+                sx={{ fontWeight: "bold" }}
+                gutterBottom
+              />
+              <Text
+                text="Fill out the form below to create a new post."
+                paragraph
+              />
+            </Box>
             <Input
               label="Title :"
               placeholder="Title"
@@ -125,8 +148,8 @@ export const PostForm = ({ post }) => {
               {...register("title", { required: true })}
               fullWidth
             />
+            <label>Slug :</label>
             <Input
-              label="Slug :"
               placeholder="Slug"
               className="mb-4"
               {...register("slug", { required: true })}
@@ -145,6 +168,7 @@ export const PostForm = ({ post }) => {
               defaultValue={getValues("content")}
               fullWidth
             />
+            <label>Blog Image :</label>
 
             <Input
               // label="Featured Image :"
@@ -155,14 +179,17 @@ export const PostForm = ({ post }) => {
               fullWidth
             />
             {post && (
-              <div className="w-full mb-4">
+              <Box sx={{width:300}}>
                 <img
                   src={bucketService.filePreview(post.featuredImage)}
                   alt={post.title}
                   className="rounded-lg"
+                  style={{maxHeight:'100%',maxWidth:'100%'}}
                 />
-              </div>
+              </Box>
             )}
+            <label>Status :</label>
+
             <Select
               options={["active", "inactive"]}
               // label="Status"
@@ -170,14 +197,19 @@ export const PostForm = ({ post }) => {
               {...register("status", { required: true })}
               value={getValues("status")}
             />
-            <ButtonComponent
-              type="submit"
-              sx={{
-                textTransform: "none",
-                color: "white",
-              }}
-              text={post ? "Update" : "Submit"}
-            />
+            {loading ? (
+              <CircularProgress />
+            ) : (
+              <ButtonComponent
+                size="large"
+                type="submit"
+                sx={{
+                  textTransform: "none",
+                  color: "white",
+                }}
+                text={post ? "Update" : "Submit"}
+              />
+            )}
           </Box>
         </Box>
       </Box>

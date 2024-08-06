@@ -26,7 +26,7 @@ setLoading(true)
         const userData = await authService.getCurrentUser();
         if (userData) {
           dispatch(authLogin({ userData }));
-          navigate("/");
+          navigate("/all-posts");
         }
       }
     } catch (error) {
